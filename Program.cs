@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using MKFotografiaBackend;
 using MKFotografiaBackend.Entities;
+using MKFotografiaBackend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
+
+var applicationData = new ApplicationData();
+builder.Configuration.GetSection("ApplicationData").Bind(applicationData);
+builder.Services.AddSingleton(applicationData);
 
 builder.Services.AddScoped<MKSeeder>();
 
@@ -42,7 +45,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
+if (applicationData.UseHttps)
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
