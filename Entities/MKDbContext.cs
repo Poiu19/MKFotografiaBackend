@@ -9,6 +9,7 @@ namespace MKFotografiaBackend.Entities
         public DbSet<Post> Posts { get; set; }
         public DbSet<Gallery> Galleries { get; set; }
         public DbSet<GalleryPhoto> GalleryPhotos { get; set; }
+        public DbSet<SliderPhoto> SliderPhotos { get; set; }
         public DbSet<Offer> Offers { get; set; }
         public MKDbContext(DbContextOptions<MKDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -68,6 +69,20 @@ namespace MKFotografiaBackend.Entities
                 .WithMany(p => p.Photos)
                 .HasForeignKey(p => p.GalleryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            /* SLIDERPHOTO */
+            modelBuilder.Entity<SliderPhoto>()
+                .Property(p => p.Id)
+                .IsRequired();
+            modelBuilder.Entity<SliderPhoto>()
+                .Property(p => p.Title)
+                .IsRequired();
+            modelBuilder.Entity<SliderPhoto>()
+                .Property(p => p.Subtitle)
+                .IsRequired();
+            modelBuilder.Entity<SliderPhoto>()
+                .Property(p => p.AlternativeText)
+                .IsRequired();
 
             /* OFFER */
             modelBuilder.Entity<Offer>()

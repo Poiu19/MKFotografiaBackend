@@ -2,10 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using MKFotografiaBackend;
 using MKFotografiaBackend.Entities;
 using MKFotografiaBackend.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 var applicationData = new ApplicationData();
 builder.Configuration.GetSection("ApplicationData").Bind(applicationData);
