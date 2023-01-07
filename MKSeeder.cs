@@ -19,6 +19,10 @@ namespace MKFotografiaBackend
                 {
                     _dbContext.Database.Migrate();
                 }
+                if (_dbContext.Roles.Any())
+                {
+                    FillRoles();
+                }
                 if (!_dbContext.SliderPhotos.Any())
                 {
                     FillSliderPhotos();
@@ -50,6 +54,30 @@ namespace MKFotografiaBackend
                 }
             };
             _dbContext.SliderPhotos.AddRange(photos);
+            _dbContext.SaveChanges();
+        }
+        public void FillRoles()
+        {
+            Role[] roles = new Role[]
+            {
+                new Role()
+                {
+                    Name = "Użytkownik"
+                },
+                new Role()
+                {
+                    Name = "Moderator"
+                },
+                new Role()
+                {
+                    Name = "Administrator"
+                },
+                new Role()
+                {
+                    Name = "Developer"
+                }
+            };
+            _dbContext.Roles.AddRange(roles);
             _dbContext.SaveChanges();
         }
     }

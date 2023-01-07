@@ -6,6 +6,7 @@ namespace MKFotografiaBackend.Entities
     public class MKDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Gallery> Galleries { get; set; }
         public DbSet<GalleryPhoto> GalleryPhotos { get; set; }
@@ -33,6 +34,22 @@ namespace MKFotografiaBackend.Entities
             modelBuilder.Entity<User>()
                 .Property(p => p.LastLogin)
                 .HasDefaultValue(null);
+            modelBuilder.Entity<User>()
+                .Property(p => p.Active)
+                .HasDefaultValue(true);
+            modelBuilder.Entity<User>()
+                .HasOne(p => p.Role)
+                .WithMany()
+                .HasForeignKey(p => p.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            /* ROLE */
+            modelBuilder.Entity<Role>()
+                .Property(p => p.Id)
+                .IsRequired();
+            modelBuilder.Entity<Role>()
+                .Property(p => p.Name)
+                .IsRequired();
 
             /* POST */
             modelBuilder.Entity<Post>()
