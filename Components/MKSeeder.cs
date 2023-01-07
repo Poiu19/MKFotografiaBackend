@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MKFotografiaBackend.Entities;
 
-namespace MKFotografiaBackend
+namespace MKFotografiaBackend.Components
 {
     public class MKSeeder
     {
@@ -19,9 +19,13 @@ namespace MKFotografiaBackend
                 {
                     _dbContext.Database.Migrate();
                 }
-                if (_dbContext.Roles.Any())
+                if (!_dbContext.Roles.Any())
                 {
                     FillRoles();
+                }
+                if (!_dbContext.Users.Any())
+                {
+                    FillUsers();
                 }
                 if (!_dbContext.SliderPhotos.Any())
                 {
@@ -78,6 +82,20 @@ namespace MKFotografiaBackend
                 }
             };
             _dbContext.Roles.AddRange(roles);
+            _dbContext.SaveChanges();
+        }
+        public void FillUsers()
+        {
+            var admin = new User()
+            {
+                Active = true,
+                Email = "admin@admin.pl",
+                Name = "Admin",
+                LastName = "Admin",
+                RoleId = 4,
+                PasswordHash = ""
+            };
+            _dbContext.Users.Add(admin);
             _dbContext.SaveChanges();
         }
     }

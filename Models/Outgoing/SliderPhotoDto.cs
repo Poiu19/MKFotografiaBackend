@@ -1,4 +1,4 @@
-﻿namespace MKFotografiaBackend.Models
+﻿namespace MKFotografiaBackend.Models.Outgoing
 {
     public class SliderPhotoDto
     {

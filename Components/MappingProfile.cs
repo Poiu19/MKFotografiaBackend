@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MKFotografiaBackend.Entities;
-using MKFotografiaBackend.Models;
+using MKFotografiaBackend.Models.Outgoing;
 
 namespace MKFotografiaBackend.Components
 {
@@ -8,6 +8,8 @@ namespace MKFotografiaBackend.Components
     {
         public MappingProfile() {
             CreateMap<SliderPhoto, SliderPhotoDto>();
+            CreateMap<Role, RoleDto>();
+            CreateMap<User, UserDto>();
         }
     }
 }

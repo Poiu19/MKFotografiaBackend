@@ -1,14 +1,23 @@
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MKFotografiaBackend;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using MKFotografiaBackend.Components;
 using MKFotografiaBackend.Entities;
+using MKFotografiaBackend.Middleware;
 using MKFotografiaBackend.Models;
+using MKFotografiaBackend.Services;
 using System.Reflection;
+using System.Text;
+using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+var webAppOptions = new WebApplicationOptions() { ContentRootPath = AppContext.BaseDirectory, Args = args, ApplicationName = System.Diagnostics.Process.GetCurrentProcess().ProcessName };
+var builder = WebApplication.CreateBuilder(webAppOptions);
 
-builder.Services.AddControllers();
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
+var authenticationSettings = new AuthenticationSettings();
+builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+builder.Services.AddSingleton(authenticationSettings);
 var applicationData = new ApplicationData();
 builder.Configuration.GetSection("ApplicationData").Bind(applicationData);
 builder.Services.AddSingleton(applicationData);
@@ -17,7 +26,68 @@ builder.Services.AddScoped<MKSeeder>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "MKFotografia", Version = "v1" });
+    options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme
+    {
+        Name = "Bearer",
+        BearerFormat = "JWT",
+        Scheme = "bearer",
+        Description = "Specify the authorization token.",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference()
+                {
+                    Id = "jwt_auth",
+                    Type = ReferenceType.SecurityScheme
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("All", policyBuilder =>
+    {
+        policyBuilder.AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowAnyOrigin();
+    });
+});
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = "Bearer";
+    option.DefaultScheme = "Bearer";
+    option.DefaultChallengeScheme = "Bearer";
+}).AddJwtBearer(cfg =>
+{
+    cfg.RequireHttpsMetadata = false;
+    cfg.SaveToken = true;
+    cfg.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidIssuer = authenticationSettings.JwtIssuer,
+        ValidAudience = authenticationSettings.JwtIssuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+    };
+});
+
+builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters().AddMvc().AddJsonOptions(option => option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+builder.Services.AddScoped<ISliderPhotoService, SliderPhotoService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var connectionString = builder.Configuration.GetConnectionString("MKDbConnection");
 builder.Services.AddDbContext<MKDbContext>(
@@ -34,6 +104,9 @@ builder.Services.AddDbContext<MKDbContext>(
     }
 );
 
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
 var app = builder.Build();
 
 var scope = app.Services.CreateScope();
@@ -41,7 +114,7 @@ var seeder = scope.ServiceProvider.GetRequiredService<MKSeeder>();
 seeder.Seed();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -52,8 +125,10 @@ if (applicationData.UseHttps)
     app.UseHttpsRedirection();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
