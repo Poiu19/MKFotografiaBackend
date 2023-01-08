@@ -8,6 +8,7 @@ namespace MKFotografiaBackend.Models.Outgoing
         public int Name { get; set; }
         public string RelativeURL { get; set; }
         public string Price { get; set; }
+        public string FullOfferTeaser { get; set; }
         public string TeaserMobile { get; set; }
         public List<string> TeaserDesktop { get; set; }
         public List<string> BasicFeatures { get; set; }
