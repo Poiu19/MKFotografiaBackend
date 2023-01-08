@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MKFotografiaBackend.Entities;
 using MKFotografiaBackend.Exceptions;
+using MKFotografiaBackend.Models.Incoming;
 using MKFotografiaBackend.Models.Outgoing;
 
 namespace MKFotografiaBackend.Services
@@ -9,15 +10,18 @@ namespace MKFotografiaBackend.Services
     {
         List<SliderPhotoDto> GetAll();
         byte[] GetPhoto(int photoId);
+        int UploadPhoto(UploadSliderPhotoDto form);
     }
     public class SliderPhotoService : ISliderPhotoService
     {
         private readonly MKDbContext _dbContext;
         private readonly IMapper _mapper;
-        public SliderPhotoService(MKDbContext dbContext, IMapper mapper)
+        private readonly IFileService _fileService;
+        public SliderPhotoService(MKDbContext dbContext, IMapper mapper, IFileService fileService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _fileService = fileService;
         }
         public List<SliderPhotoDto> GetAll()
         {
@@ -37,11 +41,17 @@ namespace MKFotografiaBackend.Services
             {
                 throw new BadRequestException($"Brak zdjęcia z id={photoId}");
             }
+            return _fileService.GetPhoto(PhotoType.SLIDER_PHOTO, photo.Path);
+        }
 
-            var dirPath = "/var/mkbackend";
-            string fullPath = Path.Combine(dirPath, photo.Path);
-            byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
-            return bytes;
+        public int UploadPhoto(UploadSliderPhotoDto form)
+        {
+            var relativePath = _fileService.SavePhoto(PhotoType.SLIDER_PHOTO, form.Photo);
+            var photoEntity = _mapper.Map<SliderPhoto>(form);
+            photoEntity.Path = relativePath;
+            _dbContext.SliderPhotos.Add(photoEntity);
+            _dbContext.SaveChanges();
+            return photoEntity.Id;
         }
     }
 }

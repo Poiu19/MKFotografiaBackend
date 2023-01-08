@@ -6,6 +6,7 @@
         public string UploadsFolder { get; set; }
         public string PostFolder { get; set; }
         public string GalleryFolder { get; set; }
+        public string SliderPhotoFolder { get; set; }
         public bool UseHttps { get; set; }
         public string GetPostFolderPath()
         {
@@ -14,6 +15,10 @@
         public string GetGalleryFolderPath()
         {
             return Path.Combine(AppDataAbsolutePath, UploadsFolder, GalleryFolder);
+        }
+        public string GetSliderPhotoFolderPath()
+        {
+            return Path.Combine(AppDataAbsolutePath, UploadsFolder, SliderPhotoFolder);
         }
     }
 }

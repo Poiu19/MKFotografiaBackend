@@ -42,19 +42,19 @@ namespace MKFotografiaBackend.Components
                     Title = "Naturalna Fotografia Ślubna",
                     Subtitle = "Profesjonalna oprawa fotograficzna najważniejszego dnia w Waszym życiu.",
                     AlternativeText = "Młoda para całująca się w otoczeniu drzew.",
-                    Path = "slider-photo/1.webp"
+                    Path = "slider-Photo/1.webp"
                 },
                 new SliderPhoto() {
                     Title = "Profesjonalny Reportaż Ślubny",
                     Subtitle = "Wyjątkowe zdjęcia z najważniejszych chwil w Waszym życiu.",
                     AlternativeText = "Pan młody trzymający pannę młodą w wodzie.",
-                    Path = "slider-photo/2.webp"
+                    Path = "slider-Photo/2.webp"
                 },
                 new SliderPhoto() {
                     Title = "Fotografia Weselna",
                     Subtitle = "Szczere i autentyczne zdjęcia będą pamiątką na lata.",
                     AlternativeText = "Tańcząca para młoda.",
-                    Path = "slider-photo/3.webp"
+                    Path = "slider-Photo/3.webp"
                 }
             };
             _dbContext.SliderPhotos.AddRange(photos);

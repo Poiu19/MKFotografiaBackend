@@ -25,7 +25,7 @@ namespace MKFotografiaBackend.Controllers
             return Ok(_userService.Login(dto));
         }
         [HttpPost("register")]
-        [Authorize(Roles = "Administrator, Developer")]
+        [Authorize(Roles = "Administrator,Developer")]
         public ActionResult Register([FromBody] RegisterUserDto dto)
         {
             var log = $"Użytkownik {_userContextService.GetUserName}, userID {_userContextService.GetUserId} tworzy nowego użytkownika - email {dto.Email}, nazwa {dto.Name} {dto.LastName}, id roli {dto.RoleId}";

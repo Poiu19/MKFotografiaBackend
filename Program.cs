@@ -94,6 +94,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ISliderPhotoService, SliderPhotoService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 var connectionString = builder.Configuration.GetConnectionString("MKDbConnection");
 builder.Services.AddDbContext<MKDbContext>(
