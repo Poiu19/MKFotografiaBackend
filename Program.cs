@@ -14,8 +14,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
-var webAppOptions = new WebApplicationOptions() { ContentRootPath = AppContext.BaseDirectory, Args = args, ApplicationName = System.Diagnostics.Process.GetCurrentProcess().ProcessName };
-var builder = WebApplication.CreateBuilder(webAppOptions);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseNLog();
 

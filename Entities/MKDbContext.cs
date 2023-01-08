@@ -100,6 +100,9 @@ namespace MKFotografiaBackend.Entities
             modelBuilder.Entity<SliderPhoto>()
                 .Property(p => p.AlternativeText)
                 .IsRequired();
+            modelBuilder.Entity<SliderPhoto>()
+                .Property(p => p.Order)
+                .HasDefaultValue(0);
 
             /* OFFER */
             modelBuilder.Entity<Offer>()

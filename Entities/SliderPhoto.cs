@@ -7,5 +7,6 @@
         public string Title { get; set; }
         public string Subtitle { get; set; }
         public string AlternativeText { get; set; }
+        public int Order { get; set; } = 0;
     }
 }

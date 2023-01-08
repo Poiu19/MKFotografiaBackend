@@ -21,7 +21,10 @@ namespace MKFotografiaBackend.Services
         }
         public List<SliderPhotoDto> GetAll()
         {
-            var sliderPhotoEntities = _dbContext.SliderPhotos.ToList();
+            var sliderPhotoEntities = _dbContext
+                .SliderPhotos
+                .OrderBy(sliderPhoto => sliderPhoto.Order)
+                .ToList();
             return _mapper.Map<List<SliderPhotoDto>>(sliderPhotoEntities);
         }
 
