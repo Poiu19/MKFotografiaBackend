@@ -10,10 +10,14 @@ namespace MKFotografiaBackend.Controllers
     {
         private readonly IUserService _userService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public UserController(IUserService userService, IWebHostEnvironment webHostEnvironment)
+        private readonly ILogger<UserController> _logger;
+        private readonly IUserContextService _userContextService;
+        public UserController(IUserService userService, IWebHostEnvironment webHostEnvironment, ILogger<UserController> logger, IUserContextService userContextService)
         {
             _userService = userService;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
+            _userContextService = userContextService;
         }
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginDto dto)
@@ -24,6 +28,9 @@ namespace MKFotografiaBackend.Controllers
         [Authorize(Roles = "Administrator, Developer")]
         public ActionResult Register([FromBody] RegisterUserDto dto)
         {
+            var log = $"Użytkownik {_userContextService.GetUserName}, userID {_userContextService.GetUserId} tworzy nowego użytkownika - email {dto.Email}, nazwa {dto.Name} {dto.LastName}, id roli {dto.RoleId}";
+            _logger.LogTrace(log);
+            _logger.LogWarning(log);
             var id = _userService.RegisterUser(dto);
             return Created($"/api/user/{id}", null);
         }

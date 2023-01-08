@@ -31,13 +31,17 @@ namespace MKFotografiaBackend.Services
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(MKDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public UserService(MKDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IHttpContextAccessor httpContextAccessor, ILogger<UserService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
         public void ChangeUser(int userId, ChangeUserDto dto)
         {
@@ -78,12 +82,16 @@ namespace MKFotografiaBackend.Services
             {
                 throw new ForbiddenException();
             }
+            var ipAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            string log = $"Użytkownik {userEntity.Name} {userEntity.LastName} o adresie e-mail {userEntity.Email} oraz IP {_httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()} zalogował się pomyślnie";
+            _logger.LogTrace(log);
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, userEntity.Id.ToString()),
                 new Claim(ClaimTypes.Name, $"{userEntity.Name} {userEntity.LastName}"),
                 new Claim(ClaimTypes.Role, $"{userEntity.Role.Name}"),
-                new Claim("RoleId", userEntity.RoleId.ToString())
+                new Claim("RoleId", userEntity.RoleId.ToString()),
+                new Claim("IPAddress", ipAddress)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

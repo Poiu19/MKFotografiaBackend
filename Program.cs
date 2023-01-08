@@ -8,6 +8,8 @@ using MKFotografiaBackend.Entities;
 using MKFotografiaBackend.Middleware;
 using MKFotografiaBackend.Models;
 using MKFotografiaBackend.Services;
+using NLog;
+using NLog.Web;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -15,12 +17,16 @@ using System.Text.Json.Serialization;
 var webAppOptions = new WebApplicationOptions() { ContentRootPath = AppContext.BaseDirectory, Args = args, ApplicationName = System.Diagnostics.Process.GetCurrentProcess().ProcessName };
 var builder = WebApplication.CreateBuilder(webAppOptions);
 
+builder.Host.UseNLog();
+
 var authenticationSettings = new AuthenticationSettings();
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
 builder.Services.AddSingleton(authenticationSettings);
 var applicationData = new ApplicationData();
 builder.Configuration.GetSection("ApplicationData").Bind(applicationData);
 builder.Services.AddSingleton(applicationData);
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<MKSeeder>();
 
@@ -88,6 +94,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddScoped<ISliderPhotoService, SliderPhotoService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 var connectionString = builder.Configuration.GetConnectionString("MKDbConnection");
 builder.Services.AddDbContext<MKDbContext>(
@@ -97,7 +104,7 @@ builder.Services.AddDbContext<MKDbContext>(
         if (builder.Environment.IsDevelopment())
         {
             options
-                .LogTo(Console.WriteLine, LogLevel.Information)
+                .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
                 .EnableServiceProviderCaching()
                 .EnableDetailedErrors();
         }
@@ -111,6 +118,7 @@ var app = builder.Build();
 
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<MKSeeder>();
+app.UseCors("All");
 seeder.Seed();
 
 // Configure the HTTP request pipeline.
@@ -130,5 +138,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Trace("MKBackend successfully initialized");
 
 await app.RunAsync();
