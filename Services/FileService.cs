@@ -60,7 +60,7 @@ namespace MKFotografiaBackend.Services
                 default:
                     throw new NotImplementedException($"Nieznana wartość {type.ToString()}");
             }
-            ImageConverter.ConvertFormFileImageToWebpAndSaveAsync(photo, path);
+            ImageConverter.ConvertFormFileImageToWebpAndSave(photo, path);
             return $"{hash}.webp";
         }
     }
