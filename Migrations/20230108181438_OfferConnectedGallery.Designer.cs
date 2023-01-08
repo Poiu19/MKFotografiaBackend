@@ -3,6 +3,7 @@ using System;
 using MKFotografiaBackend.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MKFotografiaBackend.Migrations
 {
     [DbContext(typeof(MKDbContext))]
-    partial class MKDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230108181438_OfferConnectedGallery")]
+    partial class OfferConnectedGallery
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,14 +94,6 @@ namespace MKFotografiaBackend.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("RelativeURL")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TeaserDesktop")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TeaserMobile")
                         .IsRequired()
                         .HasColumnType("longtext");
 

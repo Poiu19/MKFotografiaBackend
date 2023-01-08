@@ -112,6 +112,9 @@ namespace MKFotografiaBackend.Entities
                 .Property(p => p.Name)
                 .IsRequired();
             modelBuilder.Entity<Offer>()
+                .Property(p => p.RelativeURL)
+                .IsRequired();
+            modelBuilder.Entity<Offer>()
                 .Property(p => p.Price)
                 .IsRequired();
             modelBuilder.Entity<Offer>()
@@ -127,10 +130,24 @@ namespace MKFotografiaBackend.Entities
                     p => JsonConvert.DeserializeObject<List<string>>(p)
                 );
             modelBuilder.Entity<Offer>()
+                .Property(p => p.TeaserDesktop)
+                .HasConversion(
+                    p => JsonConvert.SerializeObject(p),
+                    p => JsonConvert.DeserializeObject<List<string>>(p)
+                );
+            modelBuilder.Entity<Offer>()
                 .HasOne(p => p.ConnectedOffer)
                 .WithMany()
                 .HasForeignKey(p => p.ConnectedOfferId)
                 .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Offer>()
+                .HasOne(p => p.ConnectedGallery)
+                .WithMany()
+                .HasForeignKey(p => p.ConnectedGalleryId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Offer>()
+                .Property(p => p.ConnectedGalleryId)
+                .HasDefaultValue(null);
         }
     }
 }
